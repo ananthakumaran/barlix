@@ -1,4 +1,5 @@
 defmodule Barlix.UTF do
+  @spec print(Barlix.code) :: iodata
   def print([]) do
     ""
   end

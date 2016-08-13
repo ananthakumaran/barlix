@@ -2,6 +2,7 @@ defmodule Barlix.PNG do
   @white 255
   @black 0
 
+  @spec print(Barlix.code, Keyword.t) :: :ok
   def print(code, options) do
     xdim = Keyword.get(options, :xdim, 1)
     height = Keyword.get(options, :height, 100)
@@ -10,7 +11,6 @@ defmodule Barlix.PNG do
     width = xdim * length(code) + margin * 2
     write_png(file_path, row(code, xdim, margin), width, height, margin)
   end
-
 
   defp row(code, xdim, margin) do
     margin_pixels = map_seq(margin, fn (_) -> @white end)
@@ -35,11 +35,12 @@ defmodule Barlix.PNG do
     }
     png = :png.create(png_options)
     margin_row = map_seq(width, fn (_) -> @white end)
-    map_seq(margin, fn (_) -> :png.append(png, {:row, margin_row}) end)
+    append_margin_row = fn (_) -> :png.append(png, {:row, margin_row}) end
+    _ = map_seq(margin, append_margin_row)
     Enum.each(1..height, fn (_) ->
       :png.append(png, {:row, row})
     end)
-    map_seq(margin, fn (_) -> :png.append(png, {:row, margin_row}) end)
+    _ = map_seq(margin, append_margin_row)
     :png.close(png)
     :ok = File.close(file)
   end

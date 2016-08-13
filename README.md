@@ -16,3 +16,8 @@ def application do
 end
 ```
 
+## Example
+
+```elixir
+Barlix.Code39.encode!("BARLIX") |> Barlix.PNG.print(file: "/tmp/barcode.png")
+```
