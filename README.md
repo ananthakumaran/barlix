@@ -1,6 +1,8 @@
 # Barlix
 
-![BARLIX](/media/logo.png?raw=true "BARLIX")
+![BARLIX](https://raw.githubusercontent.com/ananthakumaran/barlix/master/media/logo.png/media/logo.png?raw=true "BARLIX")
+
+[![Build Status](https://secure.travis-ci.org/ananthakumaran/barlix.png)](http://travis-ci.org/ananthakumaran/barlix)
 
 Barcode generator for Elixir
 
@@ -19,5 +21,8 @@ end
 ## Example
 
 ```elixir
-Barlix.Code39.encode!("BARLIX") |> Barlix.PNG.print(file: "/tmp/barcode.png")
+Barlix.Code39.encode!("BARLIX")
+|> Barlix.PNG.print(file: "/tmp/barcode.png")
 ```
+
+see [documenation](https://hexdocs.pm/barlix) for more information.

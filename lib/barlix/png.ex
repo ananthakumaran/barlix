@@ -1,7 +1,20 @@
 defmodule Barlix.PNG do
+  @moduledoc """
+  This module implements the PNG renderer.
+  """
   @white 255
   @black 0
 
+  @doc """
+  Renders the given code in png image format.
+
+  ## Options
+
+  * `:file` - (path) - target file path.
+  * `:xdim` - (integer) - width of a single bar in pixels. Defaults to `1`.
+  * `:height` - (integer) - height of the bar in pixels. Defaults to `100`.
+  * `:margin` - (integer) - margin size in pixels. Defaults to `10`.
+  """
   @spec print(Barlix.code, Keyword.t) :: :ok
   def print(code, options) do
     xdim = Keyword.get(options, :xdim, 1)

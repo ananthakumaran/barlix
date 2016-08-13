@@ -1,4 +1,20 @@
 defmodule Barlix.UTF do
+  @moduledoc """
+  UTF block characters are used to represent bars. This would be
+  useful during development as the output can be easily printed on
+  standard output.
+
+  ## Example
+
+  ```
+  Barlix.Code39.encode!("BARLIX")
+  |> Barlix.UTF.print
+  |> IO.puts
+
+  ▌▐▐▌█▐▐▐▌▌▐▐▌█▐▐ ▌█▐▌▌▌█ ▌▌█▐▐ █▐▐▌▌▐▌▌▌▐▐▌▌█▐ ▌█▐▌▌
+  ```
+  """
+
   @spec print(Barlix.code) :: iodata
   def print([]) do
     ""

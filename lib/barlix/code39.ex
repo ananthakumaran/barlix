@@ -1,5 +1,17 @@
 defmodule Barlix.Code39 do
+  @moduledoc """
+  This module implements the [Code
+  39](https://en.wikipedia.org/wiki/Code_39) symbology.
+  """
 
+  @doc """
+  Encodes the given value using code 39 symbology. Only a subset of
+  ascii characters are supported.
+
+  ## Options
+
+  * `:checksum` (boolean) - enables checksum. Defaults to `false`
+  """
   @spec encode(String.t | charlist, Keyword.t) :: {:error, binary} | {:ok, Barlix.code}
   def encode(value, options \\ []) do
     value = if is_binary(value) do
@@ -10,6 +22,10 @@ defmodule Barlix.Code39 do
     loop(value, Keyword.get(options, :checksum, false))
   end
 
+  @doc """
+  Accepts the same arguments as `encode/2`. Returns `t:Barlix.code/0` or
+  raises `Barlix.Error` in case of invalid value.
+  """
   @spec encode!(String.t | charlist, Keyword.t) :: Barlix.code | no_return
   def encode!(value, options \\ []) do
     case encode(value, options) do
