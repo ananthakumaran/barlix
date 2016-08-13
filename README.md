@@ -1,6 +1,6 @@
 # Barlix
 
-![BARLIX](https://raw.githubusercontent.com/ananthakumaran/barlix/master/media/logo.png/media/logo.png?raw=true "BARLIX")
+![BARLIX](https://raw.githubusercontent.com/ananthakumaran/barlix/master/media/logo.png "BARLIX")
 
 [![Build Status](https://secure.travis-ci.org/ananthakumaran/barlix.png)](http://travis-ci.org/ananthakumaran/barlix)
 
