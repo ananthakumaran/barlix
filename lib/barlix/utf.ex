@@ -16,13 +16,13 @@ defmodule Barlix.UTF do
   """
 
   @spec print(Barlix.code) :: iodata
-  def print([]) do
-    ""
-  end
-  def print([0]), do: " "
-  def print([1]), do: "▌"
-  def print([1 | [0 | rest]]), do: ["▌", print(rest)]
-  def print([1 | [1 | rest]]), do: ["█", print(rest)]
-  def print([0 | [1 | rest]]), do: ["▐", print(rest)]
-  def print([0 | [0 | rest]]), do: [" ", print(rest)]
+  def print({:D1, list}), do: print1(list)
+
+  defp print1([]), do: ""
+  defp print1([0]), do: " "
+  defp print1([1]), do: "▌"
+  defp print1([1 | [0 | rest]]), do: ["▌", print1(rest)]
+  defp print1([1 | [1 | rest]]), do: ["█", print1(rest)]
+  defp print1([0 | [1 | rest]]), do: ["▐", print1(rest)]
+  defp print1([0 | [0 | rest]]), do: [" ", print1(rest)]
 end

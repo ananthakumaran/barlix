@@ -6,18 +6,14 @@ defmodule TestUtils do
   import ExUnit.Assertions
 
   def s_to_l(string) do
-    Enum.map(String.codepoints(string), fn (x) ->
+    list = Enum.map(String.codepoints(string), fn (x) ->
       case x do
         "1" -> 1
         "0" -> 0
       end
     end)
+    {:D1, list}
   end
-
-  def l_to_s(list) do
-    Enum.join(list)
-  end
-
 
   def assert_file_eq(path, contents) do
     full_path = Path.join([__DIR__, "fixtures", path])

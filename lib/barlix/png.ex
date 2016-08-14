@@ -16,7 +16,7 @@ defmodule Barlix.PNG do
   * `:margin` - (integer) - margin size in pixels. Defaults to `10`.
   """
   @spec print(Barlix.code, Keyword.t) :: :ok
-  def print(code, options) do
+  def print({:D1, code}, options) do
     xdim = Keyword.get(options, :xdim, 1)
     height = Keyword.get(options, :height, 100)
     margin = Keyword.get(options, :margin, 10)

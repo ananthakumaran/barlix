@@ -43,7 +43,8 @@ defmodule Barlix.Code39 do
          end),
          encoded = start_symbol,
          {:ok, encoded} <- encodings(value, encoded),
-      do: {:ok, stop_symbol ++ c ++ [0 | encoded] |> :lists.reverse}
+         encoded = stop_symbol ++ c ++ [0 | encoded],
+      do: {:ok, {:D1, :lists.reverse(encoded)}}
   end
 
   defp checksum([], acc) do

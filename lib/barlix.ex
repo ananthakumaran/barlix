@@ -25,5 +25,5 @@ defmodule Barlix do
     defexception [:message]
   end
 
-  @type code :: [0|1]
+  @type code :: {:D1, [0|1]}
 end
