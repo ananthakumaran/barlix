@@ -10,4 +10,9 @@ defmodule Barlix.Utils do
   end
   defp do_flatten(rest, acc), do: rest ++ acc
 
+  def normalize_string(x) when is_binary(x), do: String.to_charlist(x)
+  def normalize_string(x), do: x
+
+
+  def append(a, b), do: [a | b]
 end

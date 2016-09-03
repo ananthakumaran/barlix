@@ -15,6 +15,10 @@ defmodule TestUtils do
     {:D1, list}
   end
 
+  def l_to_s({:D1, list}) do
+    Enum.map(list, &Integer.to_string/1) |> to_string
+  end
+
   def assert_file_eq(path, contents) do
     full_path = Path.join([__DIR__, "fixtures", path])
     if File.exists?(full_path) do

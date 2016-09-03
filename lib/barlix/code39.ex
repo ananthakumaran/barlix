@@ -16,12 +16,8 @@ defmodule Barlix.Code39 do
   """
   @spec encode(String.t | charlist, Keyword.t) :: {:error, binary} | {:ok, Barlix.code}
   def encode(value, options \\ []) do
-    value = if is_binary(value) do
-      String.to_charlist(value)
-    else
-      value
-    end
-    loop(value, Keyword.get(options, :checksum, false))
+    Utils.normalize_string(value)
+    |> loop(Keyword.get(options, :checksum, false))
   end
 
   @doc """
