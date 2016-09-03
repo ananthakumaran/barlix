@@ -1,7 +1,7 @@
 defmodule Barlix do
   @moduledoc """
   Barlix aims to provide a flexible set of modules to generate and
-  render barcodes. Currently it only supports a single symbology. I
+  render barcodes. Currently it only supports a few symbologies. I
   hope to add more encoders and renderers in the future.
 
   ## Example
@@ -14,6 +14,7 @@ defmodule Barlix do
   ## Encoders
 
   * `Barlix.Code39`
+  * `Barlix.Code93`
 
   ## Renderers
 
