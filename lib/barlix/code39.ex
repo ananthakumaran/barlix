@@ -1,4 +1,6 @@
 defmodule Barlix.Code39 do
+  alias Barlix.Utils
+
   @moduledoc """
   This module implements the [Code
   39](https://en.wikipedia.org/wiki/Code_39) symbology.
@@ -35,16 +37,14 @@ defmodule Barlix.Code39 do
   end
 
   defp loop(value, use_checksum) do
-    with encoded = stop_symbol,
-         {:ok, c} <- (if use_checksum do
+    with {:ok, c} <- (if use_checksum do
            checksum(value, 0)
          else
            {:ok, []}
          end),
-         encoded = start_symbol,
-         {:ok, encoded} <- encodings(value, encoded),
-         encoded = stop_symbol ++ c ++ [0 | encoded],
-      do: {:ok, {:D1, :lists.reverse(encoded)}}
+         {:ok, encoded} <- encodings(value, start_symbol),
+         encoded = [[encoded | c] | [0 | stop_symbol]],
+      do: {:ok, {:D1, Utils.flatten(encoded)}}
   end
 
   defp checksum([], acc) do
@@ -61,55 +61,55 @@ defmodule Barlix.Code39 do
   defp encodings([], acc), do: {:ok, acc}
   defp encodings([h|t], acc) do
     with e when is_list(e) <- encoding(h),
-      do: encodings(t, e ++ [0 | acc])
+      do: encodings(t, [acc | [0 | e]])
   end
 
-  defp encoding(?0), do: [1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1]
-  defp encoding(?1), do: [1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1]
-  defp encoding(?2), do: [1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1]
-  defp encoding(?3), do: [1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1]
-  defp encoding(?4), do: [1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1]
-  defp encoding(?5), do: [1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1]
-  defp encoding(?6), do: [1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]
-  defp encoding(?7), do: [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1]
-  defp encoding(?8), do: [1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1]
-  defp encoding(?9), do: [1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1]
-  defp encoding(?A), do: [1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1]
-  defp encoding(?B), do: [1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1]
-  defp encoding(?C), do: [1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]
-  defp encoding(?D), do: [1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1]
-  defp encoding(?E), do: [1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1]
-  defp encoding(?F), do: [1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1]
-  defp encoding(?G), do: [1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1]
-  defp encoding(?H), do: [1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1]
-  defp encoding(?I), do: [1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1]
-  defp encoding(?J), do: [1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
-  defp encoding(?K), do: [1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1]
-  defp encoding(?L), do: [1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1]
-  defp encoding(?M), do: [1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1]
-  defp encoding(?N), do: [1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  defp encoding(?O), do: [1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1]
-  defp encoding(?P), do: [1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1]
-  defp encoding(?Q), do: [1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1]
-  defp encoding(?R), do: [1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1]
-  defp encoding(?S), do: [1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  defp encoding(?T), do: [1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1]
-  defp encoding(?U), do: [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1]
-  defp encoding(?V), do: [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1]
-  defp encoding(?W), do: [1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1]
-  defp encoding(?X), do: [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1]
-  defp encoding(?Y), do: [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1]
-  defp encoding(?Z), do: [1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1]
-  defp encoding(?-), do: [1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1]
-  defp encoding(?.), do: [1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1]
-  defp encoding(?\s), do: [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1]
-  defp encoding(?$), do: [1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1]
-  defp encoding(?/), do: [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1]
-  defp encoding(?+), do: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1]
-  defp encoding(?%), do: [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1]
+  defp encoding(?0), do: [1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1]
+  defp encoding(?1), do: [1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1]
+  defp encoding(?2), do: [1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1]
+  defp encoding(?3), do: [1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1]
+  defp encoding(?4), do: [1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1]
+  defp encoding(?5), do: [1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1]
+  defp encoding(?6), do: [1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
+  defp encoding(?7), do: [1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]
+  defp encoding(?8), do: [1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1]
+  defp encoding(?9), do: [1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1]
+  defp encoding(?A), do: [1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1]
+  defp encoding(?B), do: [1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1]
+  defp encoding(?C), do: [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1]
+  defp encoding(?D), do: [1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1]
+  defp encoding(?E), do: [1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1]
+  defp encoding(?F), do: [1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1]
+  defp encoding(?G), do: [1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1]
+  defp encoding(?H), do: [1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1]
+  defp encoding(?I), do: [1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1]
+  defp encoding(?J), do: [1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]
+  defp encoding(?K), do: [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1]
+  defp encoding(?L), do: [1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1]
+  defp encoding(?M), do: [1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1]
+  defp encoding(?N), do: [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1]
+  defp encoding(?O), do: [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1]
+  defp encoding(?P), do: [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1]
+  defp encoding(?Q), do: [1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1]
+  defp encoding(?R), do: [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1]
+  defp encoding(?S), do: [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1]
+  defp encoding(?T), do: [1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1]
+  defp encoding(?U), do: [1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1]
+  defp encoding(?V), do: [1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1]
+  defp encoding(?W), do: [1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+  defp encoding(?X), do: [1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1]
+  defp encoding(?Y), do: [1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1]
+  defp encoding(?Z), do: [1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1]
+  defp encoding(?-), do: [1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1]
+  defp encoding(?.), do: [1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1]
+  defp encoding(?\s), do: [1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
+  defp encoding(?$), do: [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1]
+  defp encoding(?/), do: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1]
+  defp encoding(?+), do: [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1]
+  defp encoding(?%), do: [1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1]
   defp encoding(invalid), do: {:error, "Invalid character found #{IO.chardata_to_string([invalid])}"}
 
-  defp start_symbol, do: [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1]
+  defp start_symbol, do: [1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1]
   defp stop_symbol, do: start_symbol
 
   defp char_to_index(?0), do: 0
