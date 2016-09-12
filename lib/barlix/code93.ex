@@ -17,7 +17,7 @@ defmodule Barlix.Code93 do
   end
 
   @doc """
-  Accepts the same arguments as `encode/2`. Returns `t:Barlix.code/0` or
+  Accepts the same arguments as `encode/1`. Returns `t:Barlix.code/0` or
   raises `Barlix.Error` in case of invalid value.
   """
   @spec encode!(String.t | charlist) :: Barlix.code | no_return
