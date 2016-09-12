@@ -22,5 +22,13 @@ defmodule Barlix.PNGTest do
     assert_file_eq('png/code93_test93.png', png(Barlix.Code93.encode!("TEST93")))
     assert_file_eq('png/code93_all_1.png', png(Barlix.Code93.encode!("0123456789ABCDEFGHIJKL"), xdim: 2))
     assert_file_eq('png/code93_all_2.png', png(Barlix.Code93.encode!("MNOPQRSTUVWXYZ-. $/+%"), xdim: 2))
+    assert_file_eq('png/code93_all_3.png', png(Barlix.Code93.encode!("abcdefghijkl"), xdim: 2))
+    n = 8
+    Enum.each(1..n-1, fn (x) ->
+      start = (div(128, n)) * x
+      stop = (div(128, n) * (x + 1)) - 1
+      string = (Enum.into(start..stop, []))
+      assert_file_eq("png/code93_ascii_#{x}.png", png(Barlix.Code93.encode!(string), xdim: 2))
+    end)
   end
 end

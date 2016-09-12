@@ -11,7 +11,7 @@ defmodule Barlix.Code93Test do
 
   test "validation" do
     assert_raise Barlix.Error, fn ->
-      encode!("barlix")
+      encode!("Barlแx")
     end
   end
 end
