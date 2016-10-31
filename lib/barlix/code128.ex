@@ -18,7 +18,7 @@ defmodule Barlix.Code128 do
   end
 
   @doc """
-  Accepts the same arguments as `encode/2`. Returns `t:Barlix.code/0` or
+  Accepts the same arguments as `encode/1`. Returns `t:Barlix.code/0` or
   raises `Barlix.Error` in case of invalid value.
   """
   @spec encode!(String.t | charlist) :: Barlix.code | no_return
@@ -58,7 +58,7 @@ defmodule Barlix.Code128 do
   defp next(%State{chars: []} = s, cost), do: [{%{s | mode: :F}, cost}]
 
   # Start
-  defp next(%State{mode: nil, chars: [h | rest]} = s, cost) do
+  defp next(%State{mode: nil, chars: [h | _rest]} = s, cost) do
     []
     |> cons_if(a?(h), {%State{mode: :A, chars: s.chars, path: [index_a(:start_code_a)]}, cost + 1})
     |> cons_if(b?(h), {%State{mode: :B, chars: s.chars, path: [index_b(:start_code_b)]}, cost + 1})
