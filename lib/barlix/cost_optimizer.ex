@@ -38,7 +38,7 @@ defmodule Barlix.CostOptimizer do
     end)
   end
 
-  defp get_parent(%Node{parent: nil}, level), do: raise "node doesn't have enough levels"
+  defp get_parent(%Node{parent: nil}, _level), do: raise "node doesn't have enough levels"
   defp get_parent(%Node{parent: parent}, 0), do: parent
   defp get_parent(%Node{parent: parent}, level), do: get_parent(parent, level - 1)
 
