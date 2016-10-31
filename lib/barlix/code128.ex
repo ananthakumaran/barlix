@@ -42,7 +42,7 @@ defmodule Barlix.Code128 do
   end
 
   defp loop(value) do
-    state = Barlix.CostOptimizer.optimize(%State{chars: value}, &next/2, 3)
+    state = Barlix.CostOptimizer.optimize(%State{chars: value}, &next/2, 5)
     codes = :lists.reverse(state.path)
     barcode = encodings(codes, append([], quiet))
     |> append(checksum(codes))
