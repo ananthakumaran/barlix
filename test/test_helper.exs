@@ -1,3 +1,4 @@
+ExCheck.start
 Application.start(:tempfile)
 ExUnit.start()
 

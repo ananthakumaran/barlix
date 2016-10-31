@@ -15,4 +15,14 @@ defmodule Barlix.Utils do
 
 
   def append(a, b), do: [a | b]
+
+  defmacro cons_if(list, predicate, element) do
+    quote do
+      if unquote(predicate) do
+        [unquote(element) | unquote(list)]
+      else
+        unquote(list)
+      end
+    end
+  end
 end

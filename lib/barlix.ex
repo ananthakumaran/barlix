@@ -15,6 +15,7 @@ defmodule Barlix do
 
   * `Barlix.Code39`
   * `Barlix.Code93`
+  * `Barlix.Code128`
 
   ## Renderers
 

@@ -24,7 +24,9 @@ defmodule Barlix.Mixfile do
     [{:png, "~> 0.1"},
      {:ex_doc, "~> 0.13.1", only: :dev},
      {:mix_test_watch, "~> 0.2", only: :dev},
-     {:tempfile, "~> 0.1.0", only: :test}]
+     {:tempfile, "~> 0.1.0", only: :test},
+     {:excheck, "~> 0.3", only: :test},
+     {:triq, github: "krestenkrab/triq", only: :test}]
   end
 
   defp package do
