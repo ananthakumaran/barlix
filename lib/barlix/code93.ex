@@ -30,11 +30,11 @@ defmodule Barlix.Code93 do
 
   defp loop(value) do
     with {:ok, c} <- checksum(value) do
-      code = encodings(value, start_symbol)
+      code = encodings(value, start_symbol())
       |> append(c)
-      |> append(stop_symbol)
-      |> append(terminate_symbol)
-      |> flatten
+      |> append(stop_symbol())
+      |> append(terminate_symbol())
+      |> flatten()
 
       {:ok, {:D1, code}}
     end
@@ -111,7 +111,7 @@ defmodule Barlix.Code93 do
   defp encoding(@shift_plus), do: [1, 0, 0, 1, 1, 0, 0, 1, 0]
 
   defp start_symbol, do: [1, 0, 1, 0, 1, 1, 1, 1, 0]
-  defp stop_symbol, do: start_symbol
+  defp stop_symbol, do: start_symbol()
   defp terminate_symbol, do: [1]
 
   defp char_to_index(?0), do: 0

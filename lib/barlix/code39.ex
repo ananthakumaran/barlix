@@ -38,8 +38,8 @@ defmodule Barlix.Code39 do
          else
            {:ok, []}
          end),
-         {:ok, encoded} <- encodings(value, start_symbol),
-         encoded = [[encoded | c] | [0 | stop_symbol]],
+         {:ok, encoded} <- encodings(value, start_symbol()),
+         encoded = [[encoded | c] | [0 | stop_symbol()]],
       do: {:ok, {:D1, Utils.flatten(encoded)}}
   end
 
@@ -106,7 +106,7 @@ defmodule Barlix.Code39 do
   defp encoding(invalid), do: {:error, "Invalid character found #{IO.chardata_to_string([invalid])}"}
 
   defp start_symbol, do: [1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1]
-  defp stop_symbol, do: start_symbol
+  defp stop_symbol, do: start_symbol()
 
   defp char_to_index(?0), do: 0
   defp char_to_index(?1), do: 1

@@ -1,8 +1,8 @@
 %{"earmark": {:hex, :earmark, "1.0.2", "a0b0904d74ecc14da8bd2e6e0248e1a409a2bc91aade75fcf428125603de3853", [:mix], []},
   "ex_doc": {:hex, :ex_doc, "0.14.3", "e61cec6cf9731d7d23d254266ab06ac1decbb7651c3d1568402ec535d387b6f7", [:mix], [{:earmark, "~> 1.0", [hex: :earmark, optional: false]}]},
-  "excheck": {:hex, :excheck, "0.5.1", "c4cb6d08ed4b6109b03707dac3be95190c2ee1a49d773f66048385160f73908b", [:mix], []},
+  "excheck": {:hex, :excheck, "0.5.3", "7326a29cc5fdb6900e66dac205a6a70cc994e2fe037d39136817d7dab13cdabf", [:mix], []},
   "fs": {:hex, :fs, "0.9.2", "ed17036c26c3f70ac49781ed9220a50c36775c6ca2cf8182d123b6566e49ec59", [:rebar], []},
   "mix_test_watch": {:hex, :mix_test_watch, "0.2.6", "9fcc2b1b89d1594c4a8300959c19d50da2f0ff13642c8f681692a6e507f92cab", [:mix], [{:fs, "~> 0.9.1", [hex: :fs, optional: false]}]},
   "png": {:hex, :png, "0.1.1", "57eeab907d4c2b78d4c3803bc355af025248db9ebd612e4275c3cab65b809171", [:rebar], []},
   "tempfile": {:hex, :tempfile, "0.1.0", "2964afa1f653d133c61a818c84bb1b3c1a9c8e2f9f8489accb2e9c68cd0c1688", [:mix], []},
-  "triq": {:git, "https://github.com/krestenkrab/triq.git", "c7306b8eaea133d52140cb828817efb5e50a3d52", []}}
+  "triq": {:git, "https://github.com/triqng/triq.git", "2c497398e020e06db8496f1d89f12481cc5adab9", []}}
