@@ -54,7 +54,7 @@ defmodule Barlix.ITF do
     |> Enum.map(fn chunk ->
       Enum.map(chunk, &encode_digit/1)
       |> Enum.map(&String.to_charlist/1)
-      |> Enum.zip
+      |> List.zip
       |> chunks_to_bars
     end)
     {:ok, {:D1, List.flatten([start_code(), encoded, stop_code()])}}
