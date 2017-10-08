@@ -50,7 +50,7 @@ defmodule Barlix.ITF do
   @white 0
 
   defp interleave(digits) when Integer.is_even(length(digits)) do
-    encoded = Enum.chunk_every(digits, 2)
+    encoded = Enum.chunk(digits, 2)
     |> Enum.map(fn chunk ->
       Enum.map(chunk, &encode_digit/1)
       |> Enum.map(&String.to_charlist/1)
