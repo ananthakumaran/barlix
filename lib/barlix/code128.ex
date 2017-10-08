@@ -327,9 +327,6 @@ defmodule Barlix.Code128 do
   end
   defp index_c(:code_b), do: 100
   defp index_c(:code_a), do: 101
-  defp index_c(:fnc_1), do: 102
-  defp index_c(:start_code_a), do: 103
-  defp index_c(:start_code_b), do: 104
   defp index_c(:start_code_c), do: 105
 
   defp encoding(0), do: [1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0]
