@@ -2,6 +2,8 @@ defmodule Barlix.CostOptimizer do
   @moduledoc false
 
   defmodule Node do
+    @moduledoc false
+
     defstruct parent: nil, cost: 0, state: nil
   end
 

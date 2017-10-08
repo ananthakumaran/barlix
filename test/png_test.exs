@@ -24,6 +24,9 @@ defmodule Barlix.PNGTest do
     assert_file_eq('png/code93_all_2.png', png(Barlix.Code93.encode!("MNOPQRSTUVWXYZ-. $/+%"), xdim: 2))
     assert_file_eq('png/code93_all_3.png', png(Barlix.Code93.encode!("abcdefghijkl"), xdim: 2))
     assert_file_eq('png/code128_barlix.png', png(Barlix.Code128.encode!("BARLIX"), xdim: 2))
+    assert_file_eq('png/itf_all.png', png(Barlix.ITF.encode!("1234567890"), xdim: 1))
+    assert_file_eq('png/itf_05012345678900.png', png(Barlix.ITF.encode!("501234567890", checksum: true, pad: true), xdim: 1))
+    assert_file_eq('png/itf_036000291452.png', png(Barlix.ITF.encode!("03600029145", checksum: true, pad: true), xdim: 1))
     n = 8
     Enum.each(1..n-1, fn (x) ->
       start = (div(128, n)) * x
