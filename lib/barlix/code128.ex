@@ -10,18 +10,19 @@ defmodule Barlix.Code128 do
   @doc """
   Encodes the given value using code 128 symbology.
   """
-  @spec encode(String.t | charlist) :: {:error, binary} | {:ok, Barlix.code}
+  @spec encode(String.t() | charlist) :: {:error, binary} | {:ok, Barlix.code()}
   def encode(value) do
     value = normalize_string(value)
+
     with :ok <- validate(value),
-      do: loop(value)
+         do: loop(value)
   end
 
   @doc """
   Accepts the same arguments as `encode/1`. Returns `t:Barlix.code/0` or
   raises `Barlix.Error` in case of invalid value.
   """
-  @spec encode!(String.t | charlist) :: Barlix.code | no_return
+  @spec encode!(String.t() | charlist) :: Barlix.code() | no_return
   def encode!(value) do
     case encode(value) do
       {:ok, code} -> code
@@ -29,10 +30,11 @@ defmodule Barlix.Code128 do
     end
   end
 
-  defp validate([h|t]) when h >= 0 and h <= 127 do
+  defp validate([h | t]) when h >= 0 and h <= 127 do
     validate(t)
   end
-  defp validate([h|_]), do: {:error, "Invalid character found #{IO.chardata_to_string([h])}"}
+
+  defp validate([h | _]), do: {:error, "Invalid character found #{IO.chardata_to_string([h])}"}
   defp validate([]), do: :ok
 
   defmodule State do
@@ -44,14 +46,16 @@ defmodule Barlix.Code128 do
   defp loop(value) do
     state = Barlix.CostOptimizer.optimize(%State{chars: value}, &next/2, 5)
     codes = :lists.reverse(state.path)
-    barcode = encodings(codes, append([], quiet()))
-    |> append(checksum(codes))
-    |> append(stop())
-    |> append(quiet())
-    |> flatten()
+
+    barcode =
+      encodings(codes, append([], quiet()))
+      |> append(checksum(codes))
+      |> append(stop())
+      |> append(quiet())
+      |> flatten()
+
     {:ok, {:D1, barcode}}
   end
-
 
   # End
   defp next(%State{mode: :F} = s, cost), do: [{s, cost}]
@@ -60,53 +64,98 @@ defmodule Barlix.Code128 do
   # Start
   defp next(%State{mode: nil, chars: [h | _rest]} = s, cost) do
     []
-    |> cons_if(a?(h), {%State{mode: :A, chars: s.chars, path: [index_a(:start_code_a)]}, cost + 1})
-    |> cons_if(b?(h), {%State{mode: :B, chars: s.chars, path: [index_b(:start_code_b)]}, cost + 1})
-    |> cons_if(c?(s.chars), {%State{mode: :C, chars: s.chars, path: [index_c(:start_code_c)]}, cost + 1})
+    |> cons_if(
+      a?(h),
+      {%State{mode: :A, chars: s.chars, path: [index_a(:start_code_a)]}, cost + 1}
+    )
+    |> cons_if(
+      b?(h),
+      {%State{mode: :B, chars: s.chars, path: [index_b(:start_code_b)]}, cost + 1}
+    )
+    |> cons_if(
+      c?(s.chars),
+      {%State{mode: :C, chars: s.chars, path: [index_c(:start_code_c)]}, cost + 1}
+    )
   end
 
   defp next(%State{mode: :A, chars: [h | rest], path: path} = s, cost) do
     []
     |> cons_if(a?(h), {%State{mode: :A, chars: rest, path: [index_a(h) | path]}, cost + 1})
-    |> cons_if(!a?(h) && b?(h), {%State{mode: :B, chars: rest, path: [index_b(h), index_a(:code_b)] ++ path}, cost + 2})
-    |> cons_if(!a?(h) && b?(h), {%State{mode: :A, chars: rest, path: [index_b(h), index_a(:shift_b)] ++ path}, cost + 2})
-    |> cons_if(c?(s.chars), {%State{mode: :C, chars: tl(rest), path: [index_c([h, hd(rest)]), index_a(:code_c)] ++ path}, cost + 2})
+    |> cons_if(
+      !a?(h) && b?(h),
+      {%State{mode: :B, chars: rest, path: [index_b(h), index_a(:code_b)] ++ path}, cost + 2}
+    )
+    |> cons_if(
+      !a?(h) && b?(h),
+      {%State{mode: :A, chars: rest, path: [index_b(h), index_a(:shift_b)] ++ path}, cost + 2}
+    )
+    |> cons_if(
+      c?(s.chars),
+      {%State{
+         mode: :C,
+         chars: tl(rest),
+         path: [index_c([h, hd(rest)]), index_a(:code_c)] ++ path
+       }, cost + 2}
+    )
   end
 
   defp next(%State{mode: :B, chars: [h | rest], path: path} = s, cost) do
     []
     |> cons_if(b?(h), {%State{mode: :B, chars: rest, path: [index_b(h) | path]}, cost + 1})
-    |> cons_if(!b?(h) && a?(h), {%State{mode: :A, chars: rest, path: [index_a(h), index_b(:code_a)] ++ path}, cost + 2})
-    |> cons_if(!b?(h) && a?(h), {%State{mode: :B, chars: rest, path: [index_a(h), index_b(:shift_a)] ++ path}, cost + 2})
-    |> cons_if(c?(s.chars), {%State{mode: :C, chars: tl(rest), path: [index_c([h, hd(rest)]), index_b(:code_c)] ++ path}, cost + 2})
+    |> cons_if(
+      !b?(h) && a?(h),
+      {%State{mode: :A, chars: rest, path: [index_a(h), index_b(:code_a)] ++ path}, cost + 2}
+    )
+    |> cons_if(
+      !b?(h) && a?(h),
+      {%State{mode: :B, chars: rest, path: [index_a(h), index_b(:shift_a)] ++ path}, cost + 2}
+    )
+    |> cons_if(
+      c?(s.chars),
+      {%State{
+         mode: :C,
+         chars: tl(rest),
+         path: [index_c([h, hd(rest)]), index_b(:code_c)] ++ path
+       }, cost + 2}
+    )
   end
 
   defp next(%State{mode: :C, chars: [h | rest], path: path} = s, cost) do
     []
-    |> cons_if(c?(s.chars), {%State{mode: :C, chars: tl(rest), path: [index_c([h, hd(rest)])] ++ path}, cost + 1})
-    |> cons_if(!c?(s.chars) && a?(h), {%State{mode: :A, chars: rest, path: [index_a(h), index_c(:code_a)] ++ path}, cost + 2})
-    |> cons_if(!c?(s.chars) && b?(h), {%State{mode: :B, chars: rest, path: [index_b(h), index_c(:code_b)] ++ path}, cost + 2})
+    |> cons_if(
+      c?(s.chars),
+      {%State{mode: :C, chars: tl(rest), path: [index_c([h, hd(rest)])] ++ path}, cost + 1}
+    )
+    |> cons_if(
+      !c?(s.chars) && a?(h),
+      {%State{mode: :A, chars: rest, path: [index_a(h), index_c(:code_a)] ++ path}, cost + 2}
+    )
+    |> cons_if(
+      !c?(s.chars) && b?(h),
+      {%State{mode: :B, chars: rest, path: [index_b(h), index_c(:code_b)] ++ path}, cost + 2}
+    )
   end
 
-  defp c?([a|[b|_]]) when a >= 48 and a <= 57 and b >= 48 and b <= 57, do: true
+  defp c?([a | [b | _]]) when a >= 48 and a <= 57 and b >= 48 and b <= 57, do: true
   defp c?(_), do: false
   defp a?(x), do: x >= 0 && x <= 95
   defp b?(x), do: x >= 32 && x <= 127
 
-
   defp checksum([]), do: []
+
   defp checksum([start | codes]) do
-    sum = start * 1 + Enum.reduce(Enum.with_index(codes), 0, fn ({x, i}, acc) -> x * (i + 1) + acc end)
+    sum =
+      start * 1 + Enum.reduce(Enum.with_index(codes), 0, fn {x, i}, acc -> x * (i + 1) + acc end)
+
     rem(sum, 103)
     |> encoding
   end
 
-  defp encodings([ n | rest], acc), do: encodings(rest, [acc | encoding(n)])
+  defp encodings([n | rest], acc), do: encodings(rest, [acc | encoding(n)])
   defp encodings([], acc), do: acc
 
   defp quiet, do: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   defp stop, do: [1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1]
-
 
   defp index_a(?\s), do: 0
   defp index_a(?!), do: 1
@@ -325,6 +374,7 @@ defmodule Barlix.Code128 do
   defp index_c([x, y]) when x >= ?0 and x <= ?9 and y >= ?0 and y <= ?9 do
     (x - ?0) * 10 + (y - ?0)
   end
+
   defp index_c(:code_b), do: 100
   defp index_c(:code_a), do: 101
   defp index_c(:start_code_c), do: 105

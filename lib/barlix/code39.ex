@@ -14,7 +14,7 @@ defmodule Barlix.Code39 do
 
   * `:checksum` (boolean) - enables checksum. Defaults to `false`
   """
-  @spec encode(String.t | charlist, Keyword.t) :: {:error, binary} | {:ok, Barlix.code}
+  @spec encode(String.t() | charlist, Keyword.t()) :: {:error, binary} | {:ok, Barlix.code()}
   def encode(value, options \\ []) do
     Utils.normalize_string(value)
     |> loop(Keyword.get(options, :checksum, false))
@@ -24,7 +24,7 @@ defmodule Barlix.Code39 do
   Accepts the same arguments as `encode/2`. Returns `t:Barlix.code/0` or
   raises `Barlix.Error` in case of invalid value.
   """
-  @spec encode!(String.t | charlist, Keyword.t) :: Barlix.code | no_return
+  @spec encode!(String.t() | charlist, Keyword.t()) :: Barlix.code() | no_return
   def encode!(value, options \\ []) do
     case encode(value, options) do
       {:ok, code} -> code
@@ -33,31 +33,36 @@ defmodule Barlix.Code39 do
   end
 
   defp loop(value, use_checksum) do
-    with {:ok, c} <- (if use_checksum do
-           checksum(value, 0)
-         else
-           {:ok, []}
-         end),
+    with {:ok, c} <-
+           (if use_checksum do
+              checksum(value, 0)
+            else
+              {:ok, []}
+            end),
          {:ok, encoded} <- encodings(value, start_symbol()),
          encoded = [[encoded | c] | [0 | stop_symbol()]],
-      do: {:ok, {:D1, Utils.flatten(encoded)}}
+         do: {:ok, {:D1, Utils.flatten(encoded)}}
   end
 
   defp checksum([], acc) do
-    c = rem(acc, 43)
-    |> index_to_char
-    |> encoding
+    c =
+      rem(acc, 43)
+      |> index_to_char
+      |> encoding
+
     {:ok, [0 | c]}
   end
-  defp checksum([h|t], acc) do
+
+  defp checksum([h | t], acc) do
     with i when is_number(i) <- char_to_index(h),
-      do: checksum(t, acc + i)
+         do: checksum(t, acc + i)
   end
 
   defp encodings([], acc), do: {:ok, acc}
-  defp encodings([h|t], acc) do
+
+  defp encodings([h | t], acc) do
     with e when is_list(e) <- encoding(h),
-      do: encodings(t, [acc | [0 | e]])
+         do: encodings(t, [acc | [0 | e]])
   end
 
   defp encoding(?0), do: [1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1]
@@ -103,7 +108,9 @@ defmodule Barlix.Code39 do
   defp encoding(?/), do: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1]
   defp encoding(?+), do: [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1]
   defp encoding(?%), do: [1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1]
-  defp encoding(invalid), do: {:error, "Invalid character found #{IO.chardata_to_string([invalid])}"}
+
+  defp encoding(invalid),
+    do: {:error, "Invalid character found #{IO.chardata_to_string([invalid])}"}
 
   defp start_symbol, do: [1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1]
   defp stop_symbol, do: start_symbol()
@@ -151,7 +158,9 @@ defmodule Barlix.Code39 do
   defp char_to_index(?/), do: 40
   defp char_to_index(?+), do: 41
   defp char_to_index(?%), do: 42
-  defp char_to_index(invalid), do: {:error, "Invalid character found #{IO.chardata_to_string([invalid])}"}
+
+  defp char_to_index(invalid),
+    do: {:error, "Invalid character found #{IO.chardata_to_string([invalid])}"}
 
   defp index_to_char(0), do: ?0
   defp index_to_char(1), do: ?1

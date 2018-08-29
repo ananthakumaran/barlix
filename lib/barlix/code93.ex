@@ -9,7 +9,7 @@ defmodule Barlix.Code93 do
   @doc """
   Encodes the given value using code 93 symbology.
   """
-  @spec encode(String.t | charlist) :: {:error, binary} | {:ok, Barlix.code}
+  @spec encode(String.t() | charlist) :: {:error, binary} | {:ok, Barlix.code()}
   def encode(value) do
     normalize_string(value)
     |> Enum.flat_map(&ascii_to_43/1)
@@ -20,7 +20,7 @@ defmodule Barlix.Code93 do
   Accepts the same arguments as `encode/1`. Returns `t:Barlix.code/0` or
   raises `Barlix.Error` in case of invalid value.
   """
-  @spec encode!(String.t | charlist) :: Barlix.code | no_return
+  @spec encode!(String.t() | charlist) :: Barlix.code() | no_return
   def encode!(value) do
     case encode(value) do
       {:ok, code} -> code
@@ -30,23 +30,26 @@ defmodule Barlix.Code93 do
 
   defp loop(value) do
     with {:ok, c} <- checksum(value) do
-      code = encodings(value, start_symbol())
-      |> append(c)
-      |> append(stop_symbol())
-      |> append(terminate_symbol())
-      |> flatten()
+      code =
+        encodings(value, start_symbol())
+        |> append(c)
+        |> append(stop_symbol())
+        |> append(terminate_symbol())
+        |> flatten()
 
       {:ok, {:D1, code}}
     end
   end
 
   defp checksum(value), do: checksum(:lists.reverse(value), 0, 0, 0, 1)
+
   defp checksum([], c, k, _cw, _kw) do
     c = rem(c, 47)
     k = rem(k + c, 47)
-    {:ok, encoding(index_to_char(c)) ++ encoding(index_to_char(k)) }
+    {:ok, encoding(index_to_char(c)) ++ encoding(index_to_char(k))}
   end
-  defp checksum([h|t], c, k, cw, kw) do
+
+  defp checksum([h | t], c, k, cw, kw) do
     with i when is_number(i) <- char_to_index(h) do
       cw = cw + 1
       kw = kw + 1
@@ -55,7 +58,7 @@ defmodule Barlix.Code93 do
   end
 
   defp encodings([], acc), do: acc
-  defp encodings([h|t], acc), do: encodings(t, [acc | encoding(h)])
+  defp encodings([h | t], acc), do: encodings(t, [acc | encoding(h)])
 
   @shift_dollar 300
   @shift_percentage 301
@@ -161,7 +164,9 @@ defmodule Barlix.Code93 do
   defp char_to_index(@shift_percentage), do: 44
   defp char_to_index(@shift_slash), do: 45
   defp char_to_index(@shift_plus), do: 46
-  defp char_to_index(invalid), do: {:error, "Invalid character found #{IO.chardata_to_string([invalid])}"}
+
+  defp char_to_index(invalid),
+    do: {:error, "Invalid character found #{IO.chardata_to_string([invalid])}"}
 
   defp index_to_char(0), do: ?0
   defp index_to_char(1), do: ?1

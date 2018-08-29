@@ -15,7 +15,7 @@ defmodule Barlix.UTF do
   ```
   """
 
-  @spec print(Barlix.code) :: iodata
+  @spec print(Barlix.code()) :: iodata
   def print({:D1, list}), do: print1(list)
 
   defp print1([]), do: ""

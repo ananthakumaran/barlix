@@ -15,7 +15,7 @@ defmodule Barlix.ITF do
     characters is not even. Defaults to `false`
   * `:checksum` (boolean) - enables checksum. Defaults to `false`
   """
-  @spec encode(String.t | charlist, Keyword.t) :: {:error, binary} | {:ok, Barlix.code}
+  @spec encode(String.t() | charlist, Keyword.t()) :: {:error, binary} | {:ok, Barlix.code()}
   def encode(value, options) do
     with {:ok, digits} <- digits(value) do
       checksum(digits, Keyword.get(options, :checksum, false))
@@ -28,7 +28,7 @@ defmodule Barlix.ITF do
   Accepts the same arguments as `encode/2`. Returns `t:Barlix.code/0` or
   raises `Barlix.Error` in case of invalid value.
   """
-  @spec encode!(String.t | charlist, Keyword.t) :: Barlix.code | no_return
+  @spec encode!(String.t() | charlist, Keyword.t()) :: Barlix.code() | no_return
   def encode!(value, options \\ []) do
     case encode(value, options) do
       {:ok, code} -> code
@@ -38,11 +38,17 @@ defmodule Barlix.ITF do
 
   defp digits(value) do
     Utils.normalize_string(value)
-    |> Enum.reverse
+    |> Enum.reverse()
     |> Enum.reduce({:ok, []}, fn
-      x, {:ok, digits} when x >= ?0 and x <= ?9 -> {:ok, [x - ?0 | digits]}
-      _, {:error, _} = error -> error
-      x, _ -> {:error, "Invalid character found #{IO.chardata_to_string([x])}. Only numeric characters are allowed"}
+      x, {:ok, digits} when x >= ?0 and x <= ?9 ->
+        {:ok, [x - ?0 | digits]}
+
+      _, {:error, _} = error ->
+        error
+
+      x, _ ->
+        {:error,
+         "Invalid character found #{IO.chardata_to_string([x])}. Only numeric characters are allowed"}
     end)
   end
 
@@ -50,13 +56,15 @@ defmodule Barlix.ITF do
   @white 0
 
   defp interleave(digits) when Integer.is_even(length(digits)) do
-    encoded = Enum.chunk(digits, 2)
-    |> Enum.map(fn chunk ->
-      Enum.map(chunk, &encode_digit/1)
-      |> Enum.map(&String.to_charlist/1)
-      |> List.zip
-      |> chunks_to_bars
-    end)
+    encoded =
+      Enum.chunk(digits, 2)
+      |> Enum.map(fn chunk ->
+        Enum.map(chunk, &encode_digit/1)
+        |> Enum.map(&String.to_charlist/1)
+        |> List.zip()
+        |> chunks_to_bars
+      end)
+
     {:ok, {:D1, List.flatten([start_code(), encoded, stop_code()])}}
   end
 
@@ -65,15 +73,18 @@ defmodule Barlix.ITF do
   end
 
   defp checksum(digits, false), do: digits
+
   defp checksum(digits, true) do
-    total = Enum.with_index(digits)
-    |> Enum.reduce(0, fn {digit, i}, total ->
-      if Integer.is_even(i) do
-        total + 3 * digit
-      else
-        total + digit
-      end
-    end)
+    total =
+      Enum.with_index(digits)
+      |> Enum.reduce(0, fn {digit, i}, total ->
+        if Integer.is_even(i) do
+          total + 3 * digit
+        else
+          total + digit
+        end
+      end)
+
     c = rem(10 - rem(total, 10), 10)
     digits ++ [c]
   end
