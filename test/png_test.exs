@@ -11,6 +11,7 @@ defmodule Barlix.PNGTest do
     File.read!(file)
   end
 
+  @tag :skip
   test "print" do
     assert_file_eq('png/code39_barlix.png', png(Barlix.Code39.encode!("BARLIX")))
 
