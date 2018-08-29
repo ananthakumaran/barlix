@@ -227,8 +227,8 @@ defmodule Barlix.Code128 do
   defp index_b(?)), do: 9
   defp index_b(?*), do: 10
   defp index_b(?+), do: 11
-  defp index_b(?,), do: 1
-  defp index_b(?-), do: 1
+  defp index_b(?,), do: 12
+  defp index_b(?-), do: 13
   defp index_b(?.), do: 14
   defp index_b(?/), do: 15
   defp index_b(?0), do: 16
