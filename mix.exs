@@ -7,7 +7,7 @@ defmodule Barlix.Mixfile do
     [
       app: :barlix,
       version: @version,
-      elixir: "~> 1.3",
+      elixir: "~> 1.4",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       description: "Barcode generator",
@@ -25,11 +25,11 @@ defmodule Barlix.Mixfile do
   defp deps do
     [
       {:png, "~> 0.1"},
-      {:ex_doc, "~> 0.14", only: :dev},
+      {:ex_doc, "~> 0.20.2", only: :dev},
       {:mix_test_watch, "~> 0.2", only: :dev},
       {:tempfile, "~> 0.1.0", only: :test},
-      {:excheck, "~> 0.5", only: :test},
-      {:triq, github: "triqng/triq", only: :test}
+      {:excheck, "~> 0.6.0", only: :test},
+      {:triq, "~> 1.3", only: :test},
     ]
   end
 

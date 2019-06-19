@@ -26,4 +26,4 @@ Barlix.Code39.encode!("BARLIX")
 |> Barlix.PNG.print(file: "/tmp/barcode.png")
 ```
 
-see [documenation](https://hexdocs.pm/barlix/) for more information.
+see [documentation](https://hexdocs.pm/barlix/) for more information.
