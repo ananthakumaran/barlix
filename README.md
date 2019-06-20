@@ -11,12 +11,9 @@ Barcode generator for Elixir
 
 ```elixir
 def deps do
-  [{:barlix, "~> 0.1.0"}]
+  [{:barlix, "~> x.x.x"}]
 end
 
-def application do
-  [applications: [:barlix]]
-end
 ```
 
 ## Example
