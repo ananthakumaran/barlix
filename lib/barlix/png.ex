@@ -10,19 +10,23 @@ defmodule Barlix.PNG do
 
   ## Options
 
-  * `:file` - (path) - target file path.
+  * `:file` - (path) - target file path. If not set PNG binary will be returned.
   * `:xdim` - (integer) - width of a single bar in pixels. Defaults to `1`.
   * `:height` - (integer) - height of the bar in pixels. Defaults to `100`.
   * `:margin` - (integer) - margin size in pixels. Defaults to `10`.
   """
-  @spec print(Barlix.code(), Keyword.t()) :: :ok
-  def print({:D1, code}, options) do
+  @spec print(Barlix.code(), Keyword.t()) :: :ok | {:ok, binary}
+  def print({:D1, code}, options \\ []) do
     xdim = Keyword.get(options, :xdim, 1)
     height = Keyword.get(options, :height, 100)
     margin = Keyword.get(options, :margin, 10)
-    file_path = Keyword.fetch!(options, :file)
     width = xdim * length(code) + margin * 2
-    write_png(file_path, row(code, xdim, margin), width, height, margin)
+    row = row(code, xdim, margin)
+
+    case Keyword.has_key?(options, :file) do
+      true -> print_to_file(Keyword.fetch!(options, :file), row, width, height, margin)
+      false -> print_to_memory(row, width, height, margin)
+    end
   end
 
   defp row(code, xdim, margin) do
@@ -41,16 +45,25 @@ defmodule Barlix.PNG do
     [margin_pixels, bar_pixels, margin_pixels]
   end
 
-  defp write_png(file_path, row, width, height, margin) do
+  defp print_to_file(file_path, row, width, height, margin) do
     file = File.open!(file_path, [:write])
+    write_png(row, width, height, margin, file: file)
+    :ok = File.close(file)
+  end
 
+  defp print_to_memory(row, width, height, margin) do
+    {:ok, storage} = start_storage()
+    write_png(row, width, height, margin, call: &save_chunk(storage, &1))
+    release_storage(storage)
+  end
+
+  defp write_png(row, width, height, margin, options) do
     png_options = %{
       size: {width, height + 2 * margin},
       mode: {:grayscale, 8},
-      file: file
     }
 
-    png = :png.create(png_options)
+    png = :png.create(Enum.into(options, png_options))
     margin_row = map_seq(width, fn _ -> @white end)
     append_margin_row = fn _ -> :png.append(png, {:row, margin_row}) end
     _ = map_seq(margin, append_margin_row)
@@ -61,10 +74,21 @@ defmodule Barlix.PNG do
 
     _ = map_seq(margin, append_margin_row)
     :png.close(png)
-    :ok = File.close(file)
   end
 
   defp map_seq(size, callback) do
     if size > 0, do: Enum.map(1..size, fn x -> callback.(x) end), else: []
+  end
+
+  defp start_storage, do: Agent.start_link(fn -> <<>> end)
+
+  defp save_chunk(storage, [chunk]), do: save_chunk(storage, chunk)
+  defp save_chunk(storage, chunk), do: Agent.update(storage, fn acc -> acc <> chunk end)
+
+  defp release_storage(storage) do
+    content = Agent.get(storage, fn content -> content end)
+    :ok = Agent.stop(storage)
+
+    {:ok, content}
   end
 end
