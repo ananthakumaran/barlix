@@ -10,12 +10,12 @@ defmodule Barlix.PNG do
 
   ## Options
 
-  * `:file` - (path) - target file path. If not set PNG binary will be returned.
+  * `:file` - (path) - target file path. If not set, PNG will be returned as iodata.
   * `:xdim` - (integer) - width of a single bar in pixels. Defaults to `1`.
   * `:height` - (integer) - height of the bar in pixels. Defaults to `100`.
   * `:margin` - (integer) - margin size in pixels. Defaults to `10`.
   """
-  @spec print(Barlix.code(), Keyword.t()) :: :ok | {:ok, binary}
+  @spec print(Barlix.code(), Keyword.t()) :: :ok | {:ok, iodata}
   def print({:D1, code}, options \\ []) do
     xdim = Keyword.get(options, :xdim, 1)
     height = Keyword.get(options, :height, 100)
@@ -60,7 +60,7 @@ defmodule Barlix.PNG do
   defp write_png(row, width, height, margin, options) do
     png_options = %{
       size: {width, height + 2 * margin},
-      mode: {:grayscale, 8},
+      mode: {:grayscale, 8}
     }
 
     png = :png.create(Enum.into(options, png_options))
@@ -80,15 +80,15 @@ defmodule Barlix.PNG do
     if size > 0, do: Enum.map(1..size, fn x -> callback.(x) end), else: []
   end
 
-  defp start_storage, do: Agent.start_link(fn -> <<>> end)
+  defp start_storage, do: Agent.start_link(fn -> [] end)
 
-  defp save_chunk(storage, [chunk]), do: save_chunk(storage, chunk)
-  defp save_chunk(storage, chunk), do: Agent.update(storage, fn acc -> acc <> chunk end)
+  defp save_chunk(storage, iodata) do
+    Agent.update(storage, fn acc -> [acc, iodata] end)
+  end
 
   defp release_storage(storage) do
-    content = Agent.get(storage, fn content -> content end)
+    iodata = Agent.get(storage, & &1)
     :ok = Agent.stop(storage)
-
-    {:ok, content}
+    {:ok, iodata}
   end
 end

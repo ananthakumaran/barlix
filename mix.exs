@@ -29,7 +29,7 @@ defmodule Barlix.Mixfile do
       {:mix_test_watch, "~> 0.2", only: :dev},
       {:tempfile, "~> 0.1.0", only: :test},
       {:excheck, "~> 0.6.0", only: :test},
-      {:triq, "~> 1.3", only: :test},
+      {:triq, "~> 1.3", only: :test}
     ]
   end
 
