@@ -27,7 +27,7 @@ defmodule TestUtils do
 
     if File.exists?(full_path) do
       actual = File.read!(full_path)
-      assert actual == IO.iodata_to_binary(contents)
+      assert IO.iodata_to_binary(actual) == IO.iodata_to_binary(contents)
     else
       Logger.warn("File #{path} doesn't exist, creating new one")
       File.mkdir_p!(Path.dirname(full_path))

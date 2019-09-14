@@ -21,7 +21,10 @@ defmodule Barlix.PNGTest do
     assert_file_eq(fixture_file, png_content(code, options))
   end
 
-  @tag :skip
+  if :erlang.system_info(:otp_release) < '21' do
+    @tag :skip
+  end
+
   test "print" do
     assert_png('png/code39_barlix.png', Barlix.Code39.encode!("BARLIX"))
 
