@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="329px" height="120px" viewBox="0 0 329 120" version="1.1" preserveAspectRatio="none" >
+    <rect x="0" y="0" width="329px" height="120px" fill="#fff" />
+    <g fill="#000">
+            <rect x="10" y="10" width="3px" height="100px" />
+            <rect x="19" y="10" width="3px" height="100px" />
+            <rect x="25" y="10" width="6px" height="100px" />
+            <rect x="34" y="10" width="6px" height="100px" />
+            <rect x="43" y="10" width="3px" height="100px" />
+            <rect x="49" y="10" width="3px" height="100px" />
+            <rect x="55" y="10" width="6px" height="100px" />
+            <rect x="64" y="10" width="3px" height="100px" />
+            <rect x="73" y="10" width="3px" height="100px" />
+            <rect x="79" y="10" width="6px" height="100px" />
+            <rect x="88" y="10" width="6px" height="100px" />
+            <rect x="97" y="10" width="3px" height="100px" />
+            <rect x="103" y="10" width="3px" height="100px" />
+            <rect x="112" y="10" width="3px" height="100px" />
+            <rect x="118" y="10" width="6px" height="100px" />
+            <rect x="127" y="10" width="6px" height="100px" />
+            <rect x="136" y="10" width="3px" height="100px" />
+            <rect x="142" y="10" width="3px" height="100px" />
+            <rect x="148" y="10" width="6px" height="100px" />
+            <rect x="160" y="10" width="3px" height="100px" />
+            <rect x="166" y="10" width="3px" height="100px" />
+            <rect x="172" y="10" width="6px" height="100px" />
+            <rect x="181" y="10" width="3px" height="100px" />
+            <rect x="187" y="10" width="3px" height="100px" />
+            <rect x="196" y="10" width="6px" height="100px" />
+            <rect x="205" y="10" width="3px" height="100px" />
+            <rect x="211" y="10" width="6px" height="100px" />
+            <rect x="220" y="10" width="3px" height="100px" />
+            <rect x="229" y="10" width="6px" height="100px" />
+            <rect x="238" y="10" width="3px" height="100px" />
+            <rect x="244" y="10" width="3px" height="100px" />
+            <rect x="253" y="10" width="3px" height="100px" />
+            <rect x="259" y="10" width="6px" height="100px" />
+            <rect x="268" y="10" width="3px" height="100px" />
+            <rect x="274" y="10" width="6px" height="100px" />
+            <rect x="283" y="10" width="3px" height="100px" />
+            <rect x="292" y="10" width="3px" height="100px" />
+            <rect x="298" y="10" width="6px" height="100px" />
+            <rect x="307" y="10" width="6px" height="100px" />
+            <rect x="316" y="10" width="3px" height="100px" />
+    </g>
+</svg>

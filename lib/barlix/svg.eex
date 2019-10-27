@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="<%= width %>px" height="<%=  height %>px" viewBox="0 0 <%= width %> <%= height %>" version="1.1" preserveAspectRatio="none" >
+    <rect x="0" y="0" width="<%= width %>px" height="<%= height %>px" fill="#fff" />
+    <g fill="#000">
+        <%= for {x, y, bar_width, bar_height} <- bars do %>
+            <rect x="<%= x %>" y="<%= y %>" width="<%= bar_width %>px" height="<%= bar_height %>px" />
+        <% end %>
+    </g>
+</svg>

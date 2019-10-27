@@ -22,6 +22,7 @@ defmodule Barlix do
 
   * `Barlix.UTF`
   * `Barlix.PNG`
+  * `Barlix.SVG`
   """
 
   defmodule Error do
