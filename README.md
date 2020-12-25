@@ -2,7 +2,6 @@
 
 ![BARLIX](https://raw.githubusercontent.com/ananthakumaran/barlix/master/media/logo.png "BARLIX")
 
-[![Build Status](https://secure.travis-ci.org/ananthakumaran/barlix.svg)](http://travis-ci.org/ananthakumaran/barlix)
 [![Hex.pm](https://img.shields.io/hexpm/v/barlix.svg)](https://hex.pm/packages/barlix)
 
 Barcode generator for Elixir
