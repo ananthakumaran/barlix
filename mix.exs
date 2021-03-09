@@ -19,7 +19,7 @@ defmodule Barlix.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :png]]
+    [applications: [:logger, :png, :eex]]
   end
 
   defp deps do
