@@ -24,7 +24,7 @@ defmodule Barlix.Mixfile do
 
   defp deps do
     [
-      {:png, "~> 0.1"},
+      {:png, "~> 0.2"},
       {:ex_doc, "~> 0.20.2", only: :dev},
       {:mix_test_watch, "~> 0.2", only: :dev},
       {:tempfile, "~> 0.1.0", only: :test},
