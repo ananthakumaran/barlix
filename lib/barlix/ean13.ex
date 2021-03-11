@@ -7,6 +7,8 @@ defmodule Barlix.EAN13 do
   Implements [EAN13](https://en.wikipedia.org/wiki/International_Article_Number).
   """
 
+  @multiplier Bitwise.bsl(1, 7)
+
   @doc """
   Encodes the given value using EAN13. The given code is validated first.
 
@@ -14,7 +16,7 @@ defmodule Barlix.EAN13 do
 
     iex> Barlix.EAN13.encode("5449000096241")
     {:ok, {:D1, [
-    0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0
+    0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0
     ]}}
 
 
@@ -80,30 +82,27 @@ defmodule Barlix.EAN13 do
       |> String.split("", trim: true)
       |> Enum.map(&String.to_integer/1)
 
-    # multiplier = :math.pow(2, 7)
-    multiplier = Bitwise.bsl(1, 7)
-
     left =
       Enum.reduce(0..5, 0, fn i, acc ->
         table = encoding >>> (5 - i) &&& 0x1
         digit = Enum.at(parts, i)
-        acc * multiplier + tbl(table, digit)
+        acc * @multiplier + tbl(table, digit)
       end)
       |> enc_left()
 
     right =
       Enum.reduce(0..5, 0, fn i, acc ->
         digit = Enum.at(parts, 6 + i)
-        acc * multiplier + tbl(2, digit)
+        acc * @multiplier + tbl(2, digit)
       end)
       |> enc_right()
 
-    code = lpad() ++ border() ++ omit_left_zeroes(left) ++ border() ++ right ++ rborder()
+    code = pad() ++ border() ++ omit_left_zeroes(left) ++ border() ++ right ++ rborder() ++ pad()
 
     {:ok, {:D1, code}}
   end
 
-  defp lpad, do: [0, 0, 0, 0, 0]
+  defp pad, do: [0, 0, 0, 0, 0]
   defp rborder, do: [1, 0, 1, 0]
   defp border, do: [0, 1, 0, 1, 0]
 
