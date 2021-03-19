@@ -7,8 +7,6 @@ defmodule Barlix.EAN13 do
   Implements [EAN13](https://en.wikipedia.org/wiki/International_Article_Number).
   """
 
-  @multiplier Bitwise.bsl(1, 7)
-
   @doc """
   Encodes the given value using EAN13. The given code is validated first.
 
@@ -16,7 +14,7 @@ defmodule Barlix.EAN13 do
 
     iex> Barlix.EAN13.encode("5449000096241")
     {:ok, {:D1, [
-    0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0
     ]}}
 
 
@@ -71,97 +69,85 @@ defmodule Barlix.EAN13 do
   end
 
   @spec get_code(String.t()) :: {:ok, Barlix.code()}
-  def get_code(<<p::binary-size(1), value::binary-size(12)>>) do
-    # get the prefix
+  def get_code(<<p::binary-size(1), l::binary-size(6), r::binary-size(6)>>) do
     prefix = String.to_integer(p)
-    # get country encoding
-    encoding = country_tbl(prefix)
-
-    parts =
-      value
-      |> String.split("", trim: true)
-      |> Enum.map(&String.to_integer/1)
+    encoding = ctbl(prefix)
 
     left =
-      Enum.reduce(0..5, 0, fn i, acc ->
-        table = encoding >>> (5 - i) &&& 0x1
-        digit = Enum.at(parts, i)
-        acc * @multiplier + tbl(table, digit)
+      l
+      |> String.split("", trim: true)
+      |> Enum.map(&String.to_integer/1)
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {i, n} ->
+        if Integer.is_odd(Enum.at(encoding, n)) do
+          lotbl(i)
+        else
+          letbl(i)
+        end
       end)
-      |> enc_left()
 
     right =
-      Enum.reduce(0..5, 0, fn i, acc ->
-        digit = Enum.at(parts, 6 + i)
-        acc * @multiplier + tbl(2, digit)
-      end)
-      |> enc_right()
+      r
+      |> String.split("", trim: true)
+      |> Enum.map(&String.to_integer/1)
+      |> Enum.flat_map(&rtbl/1)
 
-    code = pad() ++ border() ++ omit_left_zeroes(left) ++ border() ++ right ++ rborder() ++ pad()
+    code =
+      pad_left() ++
+        guard_left() ++ left ++ guard_center() ++ right ++ guard_right() ++ pad_right()
 
     {:ok, {:D1, code}}
   end
 
-  defp pad, do: [0, 0, 0, 0, 0]
-  defp rborder, do: [1, 0, 1, 0]
-  defp border, do: [0, 1, 0, 1, 0]
-
-  @spec omit_left_zeroes([0 | 1]) :: [0 | 1]
-  def omit_left_zeroes([0 | r]), do: omit_left_zeroes(r)
-  def omit_left_zeroes([1 | _] = l), do: l
-
-  @spec enc_right(n :: pos_integer()) :: [0 | 1]
-  def enc_right(n), do: enc_right(n, [])
-  def enc_right(n, list) when n > 0, do: enc_right(floor(n / 2), [mod(n, 2) | list])
-  def enc_right(_, list), do: list
-
-  @spec enc_left(pos_integer()) :: [0 | 1]
-  def enc_left(n), do: enc_left(n, 0, [])
-  defp enc_left(n, i, list) when i <= 42, do: enc_left(floor(n / 2), i + 1, [mod(n, 2) | list])
-  defp enc_left(_n, _i, list), do: list
+  defp pad_left, do: List.duplicate(0, 11)
+  defp pad_right, do: List.duplicate(0, 7)
+  defp guard_left, do: [1, 0, 1]
+  defp guard_center, do: [0, 1, 0, 1, 0]
+  defp guard_right, do: [1, 0, 1]
 
   # Encoding tables…
-  defp country_tbl(0), do: 0x0
-  defp country_tbl(1), do: 0xB
-  defp country_tbl(2), do: 0xD
-  defp country_tbl(3), do: 0xE
-  defp country_tbl(4), do: 0x13
-  defp country_tbl(5), do: 0x19
-  defp country_tbl(6), do: 0x1C
-  defp country_tbl(7), do: 0x15
-  defp country_tbl(8), do: 0x16
-  defp country_tbl(9), do: 0x1A
 
-  defp tbl(0, 0), do: 0xD
-  defp tbl(0, 1), do: 0x19
-  defp tbl(0, 2), do: 0x13
-  defp tbl(0, 3), do: 0x3D
-  defp tbl(0, 4), do: 0x23
-  defp tbl(0, 5), do: 0x31
-  defp tbl(0, 6), do: 0x2F
-  defp tbl(0, 7), do: 0x3B
-  defp tbl(0, 8), do: 0x37
-  defp tbl(0, 9), do: 0xB
+  defp ctbl(0), do: [1, 1, 1, 1, 1, 1]
+  defp ctbl(1), do: [1, 1, 2, 1, 2, 2]
+  defp ctbl(2), do: [1, 1, 2, 2, 1, 2]
+  defp ctbl(3), do: [1, 1, 2, 2, 2, 1]
+  defp ctbl(4), do: [1, 2, 1, 1, 2, 2]
+  defp ctbl(5), do: [1, 2, 2, 1, 1, 2]
+  defp ctbl(6), do: [1, 2, 2, 2, 1, 1]
+  defp ctbl(7), do: [1, 2, 1, 2, 1, 2]
+  defp ctbl(8), do: [1, 2, 1, 2, 2, 1]
+  defp ctbl(9), do: [1, 2, 2, 1, 2, 1]
 
-  defp tbl(1, 0), do: 0x27
-  defp tbl(1, 1), do: 0x33
-  defp tbl(1, 2), do: 0x1B
-  defp tbl(1, 3), do: 0x21
-  defp tbl(1, 4), do: 0x1D
-  defp tbl(1, 5), do: 0x39
-  defp tbl(1, 6), do: 0x5
-  defp tbl(1, 7), do: 0x11
-  defp tbl(1, 8), do: 0x9
-  defp tbl(1, 9), do: 0x17
+  defp rtbl(0), do: [1, 1, 1, 0, 0, 1, 0]
+  defp rtbl(1), do: [1, 1, 0, 0, 1, 1, 0]
+  defp rtbl(2), do: [1, 1, 0, 1, 1, 0, 0]
+  defp rtbl(3), do: [1, 0, 0, 0, 0, 1, 0]
+  defp rtbl(4), do: [1, 0, 1, 1, 1, 0, 0]
+  defp rtbl(5), do: [1, 0, 0, 1, 1, 1, 0]
+  defp rtbl(6), do: [1, 0, 1, 0, 0, 0, 0]
+  defp rtbl(7), do: [1, 0, 0, 0, 1, 0, 0]
+  defp rtbl(8), do: [1, 0, 0, 1, 0, 0, 0]
+  defp rtbl(9), do: [1, 1, 1, 0, 1, 0, 0]
 
-  defp tbl(2, 0), do: 0x72
-  defp tbl(2, 1), do: 0x66
-  defp tbl(2, 2), do: 0x6C
-  defp tbl(2, 3), do: 0x42
-  defp tbl(2, 4), do: 0x5C
-  defp tbl(2, 5), do: 0x4E
-  defp tbl(2, 6), do: 0x50
-  defp tbl(2, 7), do: 0x44
-  defp tbl(2, 8), do: 0x48
-  defp tbl(2, 9), do: 0x74
+  defp lotbl(0), do: [0, 0, 0, 1, 1, 0, 1]
+  defp lotbl(1), do: [0, 0, 1, 1, 0, 0, 1]
+  defp lotbl(2), do: [0, 0, 1, 0, 0, 1, 1]
+  defp lotbl(3), do: [0, 1, 1, 1, 1, 0, 1]
+  defp lotbl(4), do: [0, 1, 0, 0, 0, 1, 1]
+  defp lotbl(5), do: [0, 1, 1, 0, 0, 0, 1]
+  defp lotbl(6), do: [0, 1, 0, 1, 1, 1, 1]
+  defp lotbl(7), do: [0, 1, 1, 1, 0, 1, 1]
+  defp lotbl(8), do: [0, 1, 1, 0, 1, 1, 1]
+  defp lotbl(9), do: [0, 0, 0, 1, 0, 1, 1]
+
+  defp letbl(0), do: [0, 1, 0, 0, 1, 1, 1]
+  defp letbl(1), do: [0, 1, 1, 0, 0, 1, 1]
+  defp letbl(2), do: [0, 0, 1, 1, 0, 1, 1]
+  defp letbl(3), do: [0, 1, 0, 0, 0, 0, 1]
+  defp letbl(4), do: [0, 0, 1, 1, 1, 0, 1]
+  defp letbl(5), do: [0, 1, 1, 1, 0, 0, 1]
+  defp letbl(6), do: [0, 0, 0, 0, 1, 0, 1]
+  defp letbl(7), do: [0, 0, 1, 0, 0, 0, 1]
+  defp letbl(8), do: [0, 0, 0, 1, 0, 0, 1]
+  defp letbl(9), do: [0, 0, 1, 0, 1, 1, 1]
 end
