@@ -14,18 +14,18 @@ defmodule Barlix.EAN13 do
 
     iex> Barlix.EAN13.encode("5449000096241")
     {:ok, {:D1, [
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0
+    1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1
     ]}}
 
 
     iex> Barlix.EAN13.encode("5901234123450")
-    {:error, "validation failed"}
+    {:error, "validation failed: expected checksum digit 7 but received 0"}
 
   """
   @spec encode(String.t()) :: {:error, String.t()} | {:ok, Barlix.code()}
   def encode(value) when is_binary(value) and byte_size(value) == 13 do
     case validate(value) do
-      :ok -> get_code(value)
+      {:ok, values} -> get_code(values)
       e -> e
     end
   end
@@ -33,7 +33,7 @@ defmodule Barlix.EAN13 do
   @doc """
   Accepts the same arguments as `encode/1` but raises on error.
   """
-  @spec encode!(String.t() | charlist) :: Barlix.code() | no_return
+  @spec encode!(String.t()) :: Barlix.code() | no_return
   def encode!(value) when is_binary(value) and byte_size(value) == 13 do
     case encode(value) do
       {:ok, code} -> code
@@ -47,36 +47,60 @@ defmodule Barlix.EAN13 do
   ## Examples:
 
     iex> Barlix.EAN13.validate("5449000096241")
-    :ok
+    {:ok, [5, 4, 4, 9, 0, 0, 0, 0, 9, 6, 2, 4, 1]}
 
     iex> Barlix.EAN13.validate("5901234123450")
-    {:error, "validation failed"}
+    {:error, "validation failed: expected checksum digit 7 but received 0"}
   """
-  @spec validate(String.t() | charlist) :: :ok | {:error, String.t()}
-  def validate(<<value::binary-size(12), c::binary-size(1)>>) do
-    n =
-      value
-      |> String.split("", trim: true)
-      |> Enum.map(&String.to_integer/1)
-      |> Enum.with_index()
-      |> Enum.reduce(0, fn
-        {v, i}, acc when Integer.is_even(i) -> acc + v
-        {v, i}, acc when Integer.is_odd(i) -> acc + 3 * v
-      end)
+  @spec validate(String.t()) :: {:ok, [non_neg_integer()]} | {:error, String.t()}
+  def validate(v) when is_binary(v) and byte_size(v) == 13 do
+    if String.match?(v, ~r/^\d{13}$/) == false do
+      {:error, "validation failed, string must only contain digits"}
+    else
+      value =
+        String.split(v, "", trim: true)
+        |> Enum.map(&String.to_integer/1)
 
-    checkdigit = mod(10 - mod(n, 10), 10) |> Integer.to_string()
-    if checkdigit == c, do: :ok, else: {:error, "validation failed"}
+      {data, [c]} = Enum.split(value, 12)
+
+      n =
+        data
+        |> Enum.with_index()
+        |> Enum.reduce(0, fn
+          {v, i}, acc when Integer.is_even(i) -> acc + v
+          {v, i}, acc when Integer.is_odd(i) -> acc + 3 * v
+        end)
+
+      checkdigit = mod(10 - mod(n, 10), 10)
+      validate_checksum(checkdigit, c, value)
+    end
   end
 
-  @spec get_code(String.t()) :: {:ok, Barlix.code()}
-  def get_code(<<p::binary-size(1), l::binary-size(6), r::binary-size(6)>>) do
-    prefix = String.to_integer(p)
+  def validate(s) when is_binary(s),
+    do:
+      {:error,
+       "expected a string with exactly 13 chars, received #{String.length(s)} chars instead"}
+
+  def validate(_), do: {:error, "unexpected input"}
+
+  defp validate_checksum(checkdigit, checkdigit, values), do: {:ok, values}
+
+  defp validate_checksum(ours, theirs, _values),
+    do: {:error, "validation failed: expected checksum digit #{ours} but received #{theirs}"}
+
+  @spec get_code([non_neg_integer()]) :: {:ok, Barlix.code()}
+  def get_code(values) when is_list(values) do
+    {[p | l], r} = Enum.split(values, 7)
+    get_code(p, l, r)
+  end
+
+  @spec get_code(non_neg_integer(), [non_neg_integer()], [non_neg_integer()]) ::
+          {:ok, Barlix.code()}
+  def get_code(prefix, l, r) when is_integer(prefix) and is_list(l) and is_list(r) do
     encoding = ctbl(prefix)
 
     left =
       l
-      |> String.split("", trim: true)
-      |> Enum.map(&String.to_integer/1)
       |> Enum.with_index()
       |> Enum.flat_map(fn {i, n} ->
         if Integer.is_odd(Enum.at(encoding, n)) do
@@ -86,21 +110,15 @@ defmodule Barlix.EAN13 do
         end
       end)
 
-    right =
-      r
-      |> String.split("", trim: true)
-      |> Enum.map(&String.to_integer/1)
-      |> Enum.flat_map(&rtbl/1)
+    right = Enum.flat_map(r, &rtbl/1)
 
     code =
-      pad_left() ++
-        guard_left() ++ left ++ guard_center() ++ right ++ guard_right() ++ pad_right()
+      [guard_left(), left, guard_center(), right, guard_right()]
+      |> List.flatten()
 
     {:ok, {:D1, code}}
   end
 
-  defp pad_left, do: List.duplicate(0, 11)
-  defp pad_right, do: List.duplicate(0, 7)
   defp guard_left, do: [1, 0, 1]
   defp guard_center, do: [0, 1, 0, 1, 0]
   defp guard_right, do: [1, 0, 1]
