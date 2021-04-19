@@ -23,7 +23,7 @@ defmodule Barlix.EAN13 do
 
   """
   @spec encode(String.t()) :: {:error, String.t()} | {:ok, Barlix.code()}
-  def encode(value) when is_binary(value) and byte_size(value) == 13 do
+  def encode(value) do
     case validate(value) do
       {:ok, values} -> get_code(values)
       e -> e
@@ -34,7 +34,7 @@ defmodule Barlix.EAN13 do
   Accepts the same arguments as `encode/1` but raises on error.
   """
   @spec encode!(String.t()) :: Barlix.code() | no_return
-  def encode!(value) when is_binary(value) and byte_size(value) == 13 do
+  def encode!(value) do
     case encode(value) do
       {:ok, code} -> code
       {:error, error} -> raise Barlix.Error, error
