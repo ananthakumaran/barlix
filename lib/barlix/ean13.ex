@@ -10,16 +10,15 @@ defmodule Barlix.EAN13 do
   @doc """
   Encodes the given value using EAN13. The given code is validated first.
 
-  ## Examples:
+  ## Examples
 
-    iex> Barlix.EAN13.encode("5449000096241")
-    {:ok, {:D1, [
-    1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1
-    ]}}
+      iex> Barlix.EAN13.encode("5449000096241")
+      {:ok, {:D1, [
+      1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1
+      ]}}
 
-
-    iex> Barlix.EAN13.encode("5901234123450")
-    {:error, "validation failed: expected checksum digit 7 but received 0"}
+      iex> Barlix.EAN13.encode("5901234123450")
+      {:error, "validation failed: expected checksum digit 7 but received 0"}
 
   """
   @spec encode(String.t()) :: {:error, String.t()} | {:ok, Barlix.code()}
@@ -44,13 +43,13 @@ defmodule Barlix.EAN13 do
   @doc """
   Validate an EAN13 code.
 
-  ## Examples:
+  ## Examples
 
-    iex> Barlix.EAN13.validate("5449000096241")
-    {:ok, [5, 4, 4, 9, 0, 0, 0, 0, 9, 6, 2, 4, 1]}
+      iex> Barlix.EAN13.validate("5449000096241")
+      {:ok, [5, 4, 4, 9, 0, 0, 0, 0, 9, 6, 2, 4, 1]}
 
-    iex> Barlix.EAN13.validate("5901234123450")
-    {:error, "validation failed: expected checksum digit 7 but received 0"}
+      iex> Barlix.EAN13.validate("5901234123450")
+      {:error, "validation failed: expected checksum digit 7 but received 0"}
   """
   @spec validate(String.t()) :: {:ok, [non_neg_integer()]} | {:error, String.t()}
   def validate(v) when is_binary(v) and byte_size(v) == 13 do
