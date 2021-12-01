@@ -1,6 +1,7 @@
 defmodule Barlix.Mixfile do
   use Mix.Project
 
+  @source_url "https://github.com/ananthakumaran/barlix"
   @version "0.6.1"
 
   def project do
@@ -10,11 +11,11 @@ defmodule Barlix.Mixfile do
       elixir: "~> 1.5",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      description: "Barcode generator",
-      package: package(),
+      deps: deps(),
       docs: docs(),
+      package: package(),
       dialyzer: [plt_add_deps: :transitive],
-      deps: deps()
+      preferred_cli_env: [docs: :docs]
     ]
   end
 
@@ -26,7 +27,7 @@ defmodule Barlix.Mixfile do
     [
       {:png, "~> 0.2"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.20.2", only: :dev},
+      {:ex_doc, ">= 0.0.0", only: :docs, runtime: false},
       {:tempfile, "~> 0.1.0", only: :test},
       {:excheck, "~> 0.6.0", only: :test},
       {:triq, "~> 1.3", only: :test}
@@ -34,19 +35,25 @@ defmodule Barlix.Mixfile do
   end
 
   defp package do
-    %{
+    [
+      description: "Barcode generator",
       licenses: ["MIT"],
-      links: %{"Github" => "https://github.com/ananthakumaran/barlix"},
-      maintainers: ["ananthakumaran@gmail.com"]
-    }
+      maintainers: ["ananthakumaran@gmail.com"],
+      links: %{"GitHub" => @source_url}
+    ]
   end
 
   defp docs do
     [
-      source_url: "https://github.com/ananthakumaran/barlix",
+      extras: [
+        "LICENSE.md": [title: "License"],
+        "README.md": [title: "Overview"]
+      ],
+      main: "readme",
+      assets: "assets",
+      source_url: @source_url,
       source_ref: "v#{@version}",
-      main: Barlix,
-      extras: ["README.md"]
+      formatters: ["html"]
     ]
   end
 end
