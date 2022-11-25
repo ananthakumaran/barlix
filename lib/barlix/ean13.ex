@@ -1,6 +1,4 @@
 defmodule Barlix.EAN13 do
-  require Integer
-  use Bitwise, only_operators: true
   import Integer, only: [mod: 2]
 
   @moduledoc """
