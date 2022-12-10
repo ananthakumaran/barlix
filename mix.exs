@@ -8,9 +8,7 @@ defmodule Barlix.Mixfile do
     [
       app: :barlix,
       version: @version,
-      elixir: "~> 1.5",
-      build_embedded: Mix.env() == :prod,
-      start_permanent: Mix.env() == :prod,
+      elixir: "~> 1.8",
       deps: deps(),
       docs: docs(),
       package: package(),
@@ -20,7 +18,7 @@ defmodule Barlix.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :png, :eex]]
+    [extra_applications: [:logger, :eex]]
   end
 
   defp deps do
