@@ -58,7 +58,7 @@ defmodule Barlix.Mixfile do
   defp dialyzer do
     [
       plt_add_deps: :transitive,
-      flags: [:unmatched_returns, :race_conditions, :error_handling],
+      flags: [:unmatched_returns, :error_handling],
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
     ]
   end
