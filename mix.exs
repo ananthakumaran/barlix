@@ -25,7 +25,7 @@ defmodule Barlix.Mixfile do
     [
       {:png, "~> 0.2"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:ex_doc, ">= 0.0.0", only: :docs, runtime: false},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:tempfile, "~> 0.1.0", only: :test},
       {:excheck, "~> 0.6.0", only: :test},
       {:triq, "~> 1.3", only: :test}
