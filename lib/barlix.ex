@@ -18,6 +18,7 @@ defmodule Barlix do
   * `Barlix.Code128`
   * `Barlix.ITF`
   * `Barlix.EAN13`
+  * `Barlix.UPCE`
 
   ## Renderers
 
