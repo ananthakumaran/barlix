@@ -12,7 +12,7 @@ defmodule Barlix.Mixfile do
       deps: deps(),
       docs: docs(),
       package: package(),
-      dialyzer: [plt_add_deps: :transitive],
+      dialyzer: dialyzer(),
       preferred_cli_env: [docs: :docs]
     ]
   end
@@ -52,6 +52,14 @@ defmodule Barlix.Mixfile do
       source_url: @source_url,
       source_ref: "v#{@version}",
       formatters: ["html"]
+    ]
+  end
+
+  defp dialyzer do
+    [
+      plt_add_deps: :transitive,
+      flags: [:unmatched_returns, :race_conditions, :error_handling],
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
     ]
   end
 end

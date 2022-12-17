@@ -27,3 +27,5 @@ barlix-*.tar
 
 # Misc.
 .DS_Store
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
