@@ -2,7 +2,7 @@ defmodule Barlix.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/ananthakumaran/barlix"
-  @version "0.6.2"
+  @version "0.6.3"
 
   def project do
     [
