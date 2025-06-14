@@ -4,7 +4,7 @@ defmodule Barlix.SVGTest do
   import TestUtils
 
   def svg_file(code, opts \\ []) do
-    {:ok, file} = Tempfile.random('barlix.svg')
+    {:ok, file} = Briefly.create(extname: "svg")
     opts = Keyword.put(opts, :file, file)
     print(code, opts)
     File.read!(file)

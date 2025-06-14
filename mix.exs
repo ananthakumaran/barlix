@@ -8,11 +8,10 @@ defmodule Barlix.Mixfile do
     [
       app: :barlix,
       version: @version,
-      elixir: "~> 1.8",
+      elixir: "~> 1.12",
       deps: deps(),
       docs: docs(),
       package: package(),
-      dialyzer: dialyzer(),
       preferred_cli_env: [docs: :docs]
     ]
   end
@@ -24,11 +23,9 @@ defmodule Barlix.Mixfile do
   defp deps do
     [
       {:png, "~> 0.2"},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:tempfile, "~> 0.1.0", only: :test},
-      {:excheck, "~> 0.6.0", only: :test},
-      {:triq, "~> 1.3", only: :test}
+      {:briefly, "~> 0.5.0", only: :test},
+      {:stream_data, "~> 1.0", only: [:test, :dev]}
     ]
   end
 
@@ -52,14 +49,6 @@ defmodule Barlix.Mixfile do
       source_url: @source_url,
       source_ref: "v#{@version}",
       formatters: ["html"]
-    ]
-  end
-
-  defp dialyzer do
-    [
-      plt_add_deps: :transitive,
-      flags: [:unmatched_returns, :error_handling],
-      plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
     ]
   end
 end
