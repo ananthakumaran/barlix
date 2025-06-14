@@ -1,5 +1,3 @@
-ExCheck.start()
-Application.start(:tempfile)
 ExUnit.start()
 
 defmodule TestUtils do
@@ -29,7 +27,7 @@ defmodule TestUtils do
       actual = File.read!(full_path)
       assert IO.iodata_to_binary(actual) == IO.iodata_to_binary(contents)
     else
-      Logger.warn("File #{path} doesn't exist, creating new one")
+      Logger.warning("File #{path} doesn't exist, creating new one")
       File.mkdir_p!(Path.dirname(full_path))
       File.write!(full_path, contents)
     end

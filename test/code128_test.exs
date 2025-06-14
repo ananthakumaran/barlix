@@ -4,7 +4,7 @@ defmodule Barlix.Code128Test do
   import TestUtils
   doctest Barlix.Code128
 
-  use ExCheck
+  use ExUnitProperties
 
   test "encode" do
     assert encode!("HI345678") ==
@@ -29,10 +29,8 @@ defmodule Barlix.Code128Test do
     end
   end
 
-  @valid_codes Enum.map(0..127, &<<&1::utf8>>)
-  @tag iterations: 500
   property "encodes" do
-    for_all lst in list(oneof(@valid_codes)) do
+    check all lst <- list_of(one_of(Enum.map(0..127, &constant(<<&1::utf8>>)))) do
       {x, _} = encode(to_string(lst))
       x == :ok
     end
